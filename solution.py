@@ -36,7 +36,7 @@ def webServer(port=13331):
 
                 #Send one HTTP header line into socket.
                 successful_request = 'HTTP/1.1 200 Ok \n Content-Type: text/html \n \n'# this is a http status code for successful request
-                connectionSocket.send(successful_request) # the string will be converted to bytes before sent
+                connectionSocket.send(successful_request.encode()) # the string will be converted to bytes before sent
 
                 #Send the content of the requested file to the client
 
