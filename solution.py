@@ -35,20 +35,20 @@ def webServer(port=13331):
                 #print("Client is requesting file: ",{outputdata})
 
                 #Send one HTTP header line into socket.
-                successful_request = 'HTTP/1.1 200 OK' # this is a http status code for successful request
-                connectionSocket.send(successful_request.encode()) # the string will be converted to bytes before sent
+                successful_request = 'HTTP/1.1 200 Ok \n Content-Type: text/html \n \n'# this is a http status code for successful request
+                connectionSocket.send(successful_request) # the string will be converted to bytes before sent
 
                 #Send the content of the requested file to the client
 
                 for i in range(0, len(outputdata)):
-                    connectionSocket.send(outputdata[i].encode())
+                   connectionSocket.send(outputdata[i].encode())
 
                 connectionSocket.send("\r\n".encode())
                 connectionSocket.close()
             except IOError:
                 #Send response message for file not found (404)
                 failed_request = 'HTTP/1.1 404 Not Found' # this is the failed to find the requested hmtl document message
-                connectionSocket.send(failed_request.encode('utf-8')) #Sending the header to the connection Socket client
+                connectionSocket.send(failed_request.encode()) #Sending the header to the connection Socket client
 
                 #Close client socket
                 connectionSocket.close()
