@@ -24,15 +24,13 @@ def webServer(port=13331):
         try:
             try:
                 message = connectionSocket.recv(1024).decode('utf-8') # this will allow me to receive the message that client
-                #print(message)
-                namefile = message.split()[1] #it will take the file name of the request
-                ch = '/'
-                filename = namefile.lstrip(ch)
-                #print(filename)
-                f = open(filename,'r')
+                
+                
+                filename = message.split()[1]
+                print(str(filename[1:]))
+                f = open(filename[1:])
                 outputdata = f.read()
-                #print(outputdata)
-                #print("Client is requesting file: ",{outputdata})
+                
 
                 #Send one HTTP header line into socket.
                 successful_request = 'HTTP/1.1 200 OK\n'
@@ -47,10 +45,16 @@ def webServer(port=13331):
 
                 connectionSocket.send("\r\n".encode())
                 connectionSocket.close()
-            except IOError:
-                #Send response message for file not found (404)
-                failed_request = 'HTTP/1.1 404 Not Found' # this is the failed to find the requested hmtl document message
-                connectionSocket.send(failed_request.encode()) #Sending the header to the connection Socket client
+
+            except IOError :
+                #print sys.exc_type
+                failed_request = "HTTP/1.1 404 Not found\r\n\r\n" # this is the failed to find the requested hmtl document message
+                connectionSocket.send(failed_request.encode())
+                output = "<p>Error: Page Not Found<p>"
+                connectionSocket.send(output.encode())
+                connectionSocket.send("\r\n".encode())
+
+                #Sending the header to the connection Socket client
 
                 #Close client socket
                 connectionSocket.close()
@@ -61,4 +65,4 @@ def webServer(port=13331):
 
 if __name__ == "__main__":
     webServer(13331)
-    #webServer(443)
+  
