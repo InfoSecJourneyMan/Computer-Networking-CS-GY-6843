@@ -13,7 +13,7 @@ def webServer(port=13331):
     #print("This is ipv4 addi", {ip_add})
     #Prepare Server Socket
     serverSocket.bind(( ip_add,port)) #We will bind this server to a specific port and host ipv4 address
-    serverSocket.listen(2) #The http server will be listening to incoming request
+    serverSocket.listen(1) #The http server will be listening to incoming request
     #The 2 means that 2 other connections are kept waiting if theres a 3rd it will be dropped
     #print("Socket will be listening to incoming HTTP Request:")
     while True:
@@ -27,21 +27,20 @@ def webServer(port=13331):
                 
                 
                 filename = message.split()[1]
-                print(str(filename[1:]))
                 f = open(filename[1:])
                 outputdata = f.read()
                 
 
                 #Send one HTTP header line into socket.
                 successful_request = 'HTTP/1.1 200 OK\n'
-                #"HTTP/1.1 200 Ok \n Content-Type: text/html \n \n"# this is a http status code for successful request
-                print(successful_request)
+                
                 connectionSocket.send(successful_request.encode()) # the string will be converted to bytes before sent
 
                 #Send the content of the requested file to the client
 
                 for i in range(0, len(outputdata)):
-                   connectionSocket.send(outputdata[i].encode())
+                    connectionSocket.send(outputdata[i].encode())
+
 
                 connectionSocket.send("\r\n".encode())
                 connectionSocket.close()
