@@ -13,7 +13,7 @@ def webServer(port=13331):
     #print("This is ipv4 addi", {ip_add})
     #Prepare Server Socket
     #serverSocket.bind(( ip_add,port)) #We will bind this server to a specific port and host ipv4 address
-    serverSocket.vind(("", port))
+    serverSocket.bind(("", port))
     serverSocket.listen(1) #The http server will be listening to incoming request
     #The 2 means that 2 other connections are kept waiting if theres a 3rd it will be dropped
     #print("Socket will be listening to incoming HTTP Request:")
