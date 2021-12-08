@@ -8,11 +8,12 @@ import sys
 def webServer(port=13331):
     serverSocket = socket(AF_INET, SOCK_STREAM) #AF_NET is for IPV4 and SOCKET_STREAM is used for TCP
     #print("Socket has been created!")
-    my_hostname = gethostname() #This returns the hostname of the current python interpreter is running on
-    ip_add = gethostbyname(my_hostname) #This will take the hostname and acquire the IP address of the host
+    #my_hostname = gethostname() #This returns the hostname of the current python interpreter is running on
+    #ip_add = gethostbyname(my_hostname) #This will take the hostname and acquire the IP address of the host
     #print("This is ipv4 addi", {ip_add})
     #Prepare Server Socket
-    serverSocket.bind(( ip_add,port)) #We will bind this server to a specific port and host ipv4 address
+    #serverSocket.bind(( ip_add,port)) #We will bind this server to a specific port and host ipv4 address
+    serverSocket.vind(("", port))
     serverSocket.listen(1) #The http server will be listening to incoming request
     #The 2 means that 2 other connections are kept waiting if theres a 3rd it will be dropped
     #print("Socket will be listening to incoming HTTP Request:")
