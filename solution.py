@@ -44,7 +44,7 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     # Send DATA command and print server response.
     # Fill in start
     dat = 'DATA\r\n'
-    clientSocket.socket(dat.encode())
+    clientSocket.send(dat.encode())
     recv4 = clientSocket.recv(1024).decode()
     #print(recv4)
     # Fill in end
@@ -74,4 +74,4 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
 
 
 if __name__ == '__main__':
-    smtp_client(1025, '127.0.0.1')
+    smtp_client(1025, "127.0.0.1")
