@@ -38,7 +38,7 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     rec = 'RCPT TO:<gogo@mail.edu>\r\n'
     clientSocket.send(rec.encode())
     recv3 = clientSocket.recv(1024).decode()
-    print(recv3)
+    #print(recv3)
     # Fill in end
 
     # Send DATA command and print server response.
@@ -46,21 +46,21 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     dat = 'DATA'
     clientSocket.socket(dat.encode())
     recv4 = clientSocket.recv(1024).decode()
-    print(recv4)
+    #print(recv4)
     # Fill in end
 
     # Send message data.
     # Fill in start
     clientSocket.send(msg.encode())
     recv5 = clientSocket.recv(1024).decode()
-    print(rec5)
+    #print(rec5)
     # Fill in end
 
     # Message ends with a single period.
     # Fill in start
     clientSocket.send(endmsg.encode())
     recv6 = clientSocket.recv(1024).decode()
-    print(recv6)
+    #print(recv6)
     # Fill in end
 
     # Send QUIT command and get server response.
@@ -68,7 +68,7 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     end_of_mail = 'QUIT\r\n'
     clientSocket.send(end_of_mail.encode())
     recv7 = clientSocket.recv(1024).decode()
-    print(recv7)
+    #print(recv7)
     # Fill in end
     clientSocket.close()
 
