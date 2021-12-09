@@ -16,7 +16,7 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     # Fill in end
 
     recv = clientSocket.recv(1024).decode()
-    print(recv)
+    #print(recv)
     if recv[:3] != '220':
         print('220 reply not received from server.')
 
@@ -24,7 +24,7 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     heloCommand = 'HELO Alice\r\n'
     clientSocket.send(heloCommand.encode())
     recv1 = clientSocket.recv(1024).decode()
-    print(recv1)
+    #print(recv1)
     if recv1[:3] != '250':
         print('250 reply not received from server.')
 
@@ -37,7 +37,7 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     # Fill in start
     rec = 'RCPT TO:<gogo@mail.edu>\r\n'
     clientSocket.send(rec.encode())
-    recv3 = clientSocket.recv(1024).decode()
+    #recv3 = clientSocket.recv(1024).decode()
     #print(recv3)
     # Fill in end
 
@@ -45,21 +45,21 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     # Fill in start
     dat = 'DATA'
     clientSocket.socket(dat.encode())
-    recv4 = clientSocket.recv(1024).decode()
+    #recv4 = clientSocket.recv(1024).decode()
     #print(recv4)
     # Fill in end
 
     # Send message data.
     # Fill in start
     clientSocket.send(msg.encode())
-    recv5 = clientSocket.recv(1024).decode()
+    #recv5 = clientSocket.recv(1024).decode()
     #print(rec5)
     # Fill in end
 
     # Message ends with a single period.
     # Fill in start
     clientSocket.send(endmsg.encode())
-    recv6 = clientSocket.recv(1024).decode()
+    #recv6 = clientSocket.recv(1024).decode()
     #print(recv6)
     # Fill in end
 
@@ -67,7 +67,7 @@ def smtp_client(port=1025, mailserver='127.0.0.1'):
     # Fill in start
     end_of_mail = 'QUIT\r\n'
     clientSocket.send(end_of_mail.encode())
-    recv7 = clientSocket.recv(1024).decode()
+    #recv7 = clientSocket.recv(1024).decode()
     #print(recv7)
     # Fill in end
     clientSocket.close()
