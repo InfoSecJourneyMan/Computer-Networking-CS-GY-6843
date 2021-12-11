@@ -52,18 +52,14 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         Type, code, checksum, replyID, seq = struct.unpack("bbHHh",recPacket[20:28])
         # Fill in start
         #value_time = []
-        value_time = list()
+    #value_time = list()
         if type != 8:
             bytesInDouble = struct.calcsize("d")
             send_time = struct.unpack("d", recPacket[28:28 + bytesInDouble])[0]
-            over = (timeReceived - send_time) * 100
+            return timeReceived - send_time * 100
            #value_time.append(over)
-            return value_time.append(over)
+            #eturn value_time.append(over)
             #return over
-        
-       
-
-        
         # Fetch the ICMP header from the IP packet
 
         # Fill in end
@@ -116,23 +112,25 @@ def doOnePing(destAddr, timeout):
 
 
 def ping(host, timeout=1):
-    global value_time
+    
     # timeout=1 means: If one second goes by without a reply from the server,  	# the client assumes that either the client's ping or the server's pong is lost
     dest = gethostbyname(host)
     print("Pinging " + dest + " using Python:")
     print("")
+    value_time = list()
     # Calculate vars values and return them
-    
+    for i in range(0,4):
+        delay = doOnePing(dest, timeout)
+        value_time.append(delay)
+
     packet_min = min(value_time)
     packet_avg = mean(value_time)
     packet_max = max(value_time)
     stdev_var = stdev(value_time)
     vars = [str(packet_min), str(packet_avg), str(packet_max),str(stdev_var)]
     # Send ping requests to a server separated by approximately one second
-    for i in range(0,4):
-        delay = doOnePing(dest, timeout)
-        print(delay)
-        time.sleep(1)  # one second
+   
+        
 
     return vars
 
