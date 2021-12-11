@@ -1,34 +1,140 @@
-"""Welcome_assignment answers
-Author: Armando Flores Munos
-Date: 10/7/2021
-Really cool assignment posted for the start of the semester programming work
-Input -All eight questions given in the assignment
- Output - The right answer for the specific question """
+from socket import *
+import os
+import sys
+import struct
+import time
+import select
+import binascii
+from statistics import mean,stdev
+# Should use stdev
 
-def welcome_assignment_answers(question):
-    if question == "Are encoding and encryption the same? - Yes/No":
-        answer = "No"
-    elif question == "In Slack, what is the secret passphrase posted in the #cyberfellows-computernetworking-fall2021 channel posted by a TA?":
-        answer = "mTLS"
-    elif question == "Is it possible to decrypt a message without a key? - Yes/No":
-        answer = "No"
-    elif question == "Is it possible to decode a message without a key? - Yes/No":
-        answer = "Yes"
-    elif question == "Is a hashed message supposed to be un-hashed? - Yes/No":
-        answer = "No"
-    elif question == "What is the MD5 hashing value to the following message: 'NYU Computer Networking' - Use MD5 hash generator and use the answer in your code":
-        answer = "42b76fe51778764973077a5a94056724"
-    elif question == "Is MD5 a secured hashing algorithm? - Yes/No":
-        answer = "No"
-    elif question == "What layer from the TCP/IP model the protocol DHCP belongs to? - The answer should be a numeric number":
-        answer = 5
-    elif question == "What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number":
-        answer = 4
+ICMP_ECHO_REQUEST = 8
+
+
+def checksum(string):
+    csum = 0
+    countTo = (len(string) // 2) * 2
+    count = 0
+
+    while count < countTo:
+        thisVal = (string[count + 1]) * 256 + (string[count])
+        csum += thisVal
+        csum &= 0xffffffff
+        count += 2
+
+    if countTo < len(string):
+        csum += (string[len(string) - 1])
+        csum &= 0xffffffff
+
+    csum = (csum >> 16) + (csum & 0xffff)
+    csum = csum + (csum >> 16)
+    answer = ~csum
+    answer = answer & 0xffff
+    answer = answer >> 8 | (answer << 8 & 0xff00)
     return answer
 
-#Complete all the questions
 
-if __name__ == "__main__":
 
-    #debug_question = "What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number"
-    print(welcome_assignment_answers(debug_question))
+def receiveOnePing(mySocket, ID, timeout, destAddr):
+    
+    timeLeft = timeout
+    global value_time
+    while 1:
+        startedSelect = time.time()
+        whatReady = select.select([mySocket], [], [], timeLeft)
+        howLongInSelect = (time.time() - startedSelect)
+        if whatReady[0] == []:  # Timeout
+            return "Request timed out."
+
+        timeReceived = time.time()
+        recPacket, addr = mySocket.recvfrom(1024)
+       
+        Type, code, checksum, replyID, seq = struct.unpack("bbHHh",recPacket[20:28])
+        # Fill in start
+        #value_time = []
+        value_time = list()
+        if type != 8:
+            bytesInDouble = struct.calcsize("d")
+            send_time = struct.unpack("d", recPacket[28:28 + bytesInDouble])[0]
+            over = (timeReceived - send_time) * 100
+           #value_time.append(over)
+            return value_time.append(over)
+            #return over
+        
+       
+
+        
+        # Fetch the ICMP header from the IP packet
+
+        # Fill in end
+        timeLeft = timeLeft - howLongInSelect
+        if timeLeft <= 0:
+            return "Request timed out."
+
+
+def sendOnePing(mySocket, destAddr, ID):
+    # Header is type (8), code (8), checksum (16), id (16), sequence (16)
+
+    myChecksum = 0
+    # Make a dummy header with a 0 checksum
+    # struct -- Interpret strings as packed binary data
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
+    data = struct.pack("d", time.time())
+    # Calculate the checksum on the data and the dummy header.
+    myChecksum = checksum(header + data)
+
+    # Get the right checksum, and put in the header
+
+    if sys.platform == 'darwin':
+        # Convert 16-bit integers from host to network  byte order
+        myChecksum = htons(myChecksum) & 0xffff
+    else:
+        myChecksum = htons(myChecksum)
+
+
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, ID, 1)
+    packet = header + data
+
+    mySocket.sendto(packet, (destAddr, 1))  # AF_INET address must be tuple, not str
+
+
+    # Both LISTS and TUPLES consist of a number of objects
+    # which can be referenced by their position number within the object.
+
+def doOnePing(destAddr, timeout):
+    icmp = getprotobyname("icmp")
+
+
+    # SOCK_RAW is a powerful socket type. For more details:   http://sockraw.org/papers/sock_raw
+    mySocket = socket(AF_INET, SOCK_RAW, icmp)
+
+    myID = os.getpid() & 0xFFFF  # Return the current process i
+    sendOnePing(mySocket, destAddr, myID)
+    delay = receiveOnePing(mySocket, myID, timeout, destAddr)
+    mySocket.close()
+    return delay
+
+
+def ping(host, timeout=1):
+    global value_time
+    # timeout=1 means: If one second goes by without a reply from the server,  	# the client assumes that either the client's ping or the server's pong is lost
+    dest = gethostbyname(host)
+    print("Pinging " + dest + " using Python:")
+    print("")
+    # Calculate vars values and return them
+    
+    packet_min = min(value_time)
+    packet_avg = mean(value_time)
+    packet_max = max(value_time)
+    stdev_var = stdev(value_time)
+    vars = [str(packet_min), str(packet_avg), str(packet_max),str(stdev_var)]
+    # Send ping requests to a server separated by approximately one second
+    for i in range(0,4):
+        delay = doOnePing(dest, timeout)
+        print(delay)
+        time.sleep(1)  # one second
+
+    return vars
+
+if __name__ == '__main__':
+    ping("google.co.il")
