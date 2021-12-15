@@ -99,6 +99,8 @@ def get_route(hostname):
                 types, code, checksum, packetID, sequence = struct.unpack('bbHHh', icmp_head)
                 try: #try to fetch the hostname
                     #gethostbyaddr(addr[0])
+                    tracelist1.append(str(destAddr))
+                    tracelist2.append(tracelist1)
                     host = gethostbyaddr(destAddr)[0]
                     tracelist1.append(str(host))
                     tracelist2.append(tracelist1)
