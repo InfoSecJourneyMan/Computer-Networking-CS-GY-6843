@@ -98,7 +98,9 @@ def get_route(hostname):
                 print(icmp_head)
                 types, code, checksum, packetID, sequence = struct.unpack('bbHHh', icmp_head)
                 try: #try to fetch the hostname
-                    tracelist1.append(hostname)
+                    #gethostbyaddr(addr[0])
+                    host = mySocket.gethostbyaddr(addr)[0]
+                    tracelist1.append(host)
                     tracelist2.append(tracelist1)
 
                 except herror:   #if the host does not provide a hostname
@@ -127,5 +129,6 @@ def get_route(hostname):
                 break
             finally:
                 mySocket.close()
+    return tracelist2
 
 
