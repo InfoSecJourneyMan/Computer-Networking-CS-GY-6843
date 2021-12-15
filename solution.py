@@ -100,7 +100,7 @@ def get_route(hostname):
                 try: #try to fetch the hostname
                     #gethostbyaddr(addr[0])
                     host = gethostbyaddr(destAddr)[0]
-                    tracelist1.append(host)
+                    tracelist1.append(str(host))
                     tracelist2.append(tracelist1)
 
                 except herror:   #if the host does not provide a hostname
@@ -111,17 +111,17 @@ def get_route(hostname):
                     bytes = struct.calcsize("d")
                     timeSent = struct.unpack("d", recvPacket[28:28 +
                     bytes])[0]
-                    tracelist1.append(timeSent)
+                    tracelist1.append(str(timeSent))
                     tracelist2.append(tracelist1)
                 elif types == 3:
                     bytes = struct.calcsize("d")
                     timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
-                    tracelist1.append(timeSent)
+                    tracelist1.append(str(timeSent))
                     tracelist2.append(tracelist1)
                 elif types == 0:
                     bytes = struct.calcsize("d")
                     timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
-                    tracelist1.append(timeSent)
+                    tracelist1.append(str(timeSent))
                     tracelist2.append(tracelist1)
                 else:
                       tracelist1.append("* * * ERROR")
