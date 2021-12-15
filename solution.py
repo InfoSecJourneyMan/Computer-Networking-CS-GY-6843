@@ -92,7 +92,6 @@ def get_route(hostname):
                     tracelist2.append(tracelist1)
             except timeout:
                 continue
-
             else:
                 icmp_head = recvPacket[20:28]
                 
@@ -102,7 +101,7 @@ def get_route(hostname):
                     tracelist1.append(str(destAddr))
                     tracelist2.append(tracelist1)
                     host = gethostbyaddr(destAddr)[0]
-                    tracelist1.append(str(str(host))
+                    tracelist1.append(str(host))
                     tracelist2.append(tracelist1)
 
                 except herror:   #if the host does not provide a hostname
