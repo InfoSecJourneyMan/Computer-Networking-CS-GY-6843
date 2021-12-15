@@ -1,34 +1,131 @@
-"""Welcome_assignment answers
-Author: Armando Flores Munos
-Date: 10/7/2021
-Really cool assignment posted for the start of the semester programming work
-Input -All eight questions given in the assignment
- Output - The right answer for the specific question """
+from socket import *
+import os
+import sys
+import struct
+import time
+import select
+import binascii
 
-def welcome_assignment_answers(question):
-    if question == "Are encoding and encryption the same? - Yes/No":
-        answer = "No"
-    elif question == "In Slack, what is the secret passphrase posted in the #cyberfellows-computernetworking-fall2021 channel posted by a TA?":
-        answer = "mTLS"
-    elif question == "Is it possible to decrypt a message without a key? - Yes/No":
-        answer = "No"
-    elif question == "Is it possible to decode a message without a key? - Yes/No":
-        answer = "Yes"
-    elif question == "Is a hashed message supposed to be un-hashed? - Yes/No":
-        answer = "No"
-    elif question == "What is the MD5 hashing value to the following message: 'NYU Computer Networking' - Use MD5 hash generator and use the answer in your code":
-        answer = "42b76fe51778764973077a5a94056724"
-    elif question == "Is MD5 a secured hashing algorithm? - Yes/No":
-        answer = "No"
-    elif question == "What layer from the TCP/IP model the protocol DHCP belongs to? - The answer should be a numeric number":
-        answer = 5
-    elif question == "What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number":
-        answer = 4
+ICMP_ECHO_REQUEST = 8
+MAX_HOPS = 30
+TIMEOUT = 2.0
+TRIES = 1
+# The packet that we shall send to each router along the path is the ICMP echo
+# request packet, which is exactly what we had used in the ICMP ping exercise.
+# We shall use the same packet that we built in the Ping exercise
+
+def checksum(string):
+# In this function we make the checksum of our packet
+    csum = 0
+    countTo = (len(string) // 2) * 2
+    count = 0
+
+    while count < countTo:
+        thisVal = (string[count + 1]) * 256 + (string[count])
+        csum += thisVal
+        csum &= 0xffffffff
+        count += 2
+
+    if countTo < len(string):
+        csum += (string[len(string) - 1])
+        csum &= 0xffffffff
+
+    csum = (csum >> 16) + (csum & 0xffff)
+    csum = csum + (csum >> 16)
+    answer = ~csum
+    answer = answer & 0xffff
+    answer = answer >> 8 | (answer << 8 & 0xff00)
     return answer
 
-#Complete all the questions
+def build_packet():
+    myID = os.getpid()
+    myChecksum = 0
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, myID, 1)
+    data = struct.pack("d", time.time())
+    # Calculate the checksum on the data and the dummy header.
+    myChecksum = checksum(header + data)
 
-if __name__ == "__main__":
+    # Get the right checksum, and put in the header
 
-    #debug_question = "What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number"
-    print(welcome_assignment_answers(debug_question))
+    if sys.platform == 'darwin':
+        # Convert 16-bit integers from host to network  byte order
+        myChecksum = htons(myChecksum) & 0xffff
+    else:
+        myChecksum = htons(myChecksum)
+
+    
+    header = struct.pack("bbHHh", ICMP_ECHO_REQUEST, 0, myChecksum, myID, 1)
+    # So the function ending should look like this
+
+    packet = header + data
+    return packet
+
+def get_route(hostname):
+    timeLeft = TIMEOUT
+    tracelist1 = [] #This is your list to use when iterating through each trace 
+    tracelist2 = [] #This is your list to contain all traces
+
+    for ttl in range(1,MAX_HOPS):
+        for tries in range(TRIES):
+            destAddr = gethostbyname(hostname)
+            icmp = getprotobyname("icmp")
+
+            mySocket = socket(AF_INET, SOCK_RAW, icmp)
+            mySocket.setsockopt(IPPROTO_IP, IP_TTL, struct.pack('I', ttl))
+            mySocket.settimeout(TIMEOUT)
+            try:
+                d = build_packet()
+                mySocket.sendto(d, (hostname, 0))
+                t= time.time()
+                startedSelect = time.time()
+                whatReady = select.select([mySocket], [], [], timeLeft)
+                howLongInSelect = (time.time() - startedSelect)
+                if whatReady[0] == []: # Timeout
+                    tracelist1.append("* * * Request timed out.")
+                    tracelist2.append(tracelist1)
+                    
+                recvPacket, addr = mySocket.recvfrom(1024)
+                timeReceived = time.time()
+                timeLeft = timeLeft - howLongInSelect
+                if timeLeft <= 0:
+                    tracelist1.append("* * * Request timed out.")
+                    tracelist2.append(tracelist1)
+            except timeout:
+                continue
+
+            else:
+                icmp_head = recvPacket[20:28]
+                print(icmp_head)
+                types, code, checksum, packetID, sequence = struct.unpack('bbHHh', icmp_head)
+                try: #try to fetch the hostname
+                    tracelist1.append(hostname)
+                    tracelist2.append(tracelist1)
+
+                except herror:   #if the host does not provide a hostname
+                    tracelist1.append("Hostname not returnable")
+                    tracelist2.append(tracelist1)
+
+                if types == 11:
+                    bytes = struct.calcsize("d")
+                    timeSent = struct.unpack("d", recvPacket[28:28 +
+                    bytes])[0]
+                    tracelist1.append(timeSent)
+                    tracelist2.append(tracelist1)
+                elif types == 3:
+                    bytes = struct.calcsize("d")
+                    timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
+                    tracelist1.append(timeSent)
+                    tracelist2.append(tracelist1)
+                elif types == 0:
+                    bytes = struct.calcsize("d")
+                    timeSent = struct.unpack("d", recvPacket[28:28 + bytes])[0]
+                    tracelist1.append(timeSent)
+                    tracelist2.append(tracelist1)
+                else:
+                      tracelist1.append("* * * ERROR")
+                      tracelist1.append(tracelist2)
+                break
+            finally:
+                mySocket.close()
+
+
